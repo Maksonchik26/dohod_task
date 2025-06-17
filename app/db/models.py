@@ -3,7 +3,7 @@ from datetime import datetime
 from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy import func
 
-from db.base import Base, UpdateMixin
+from app.db.base import Base, UpdateMixin
 
 
 class Task(Base, UpdateMixin):

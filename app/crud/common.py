@@ -4,7 +4,7 @@ from fastapi import Depends
 from sqlalchemy import update
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from db.base import get_async_session
+from app.db.base import get_async_session
 
 
 class AbstractCRUD(metaclass=ABCMeta):

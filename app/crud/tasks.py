@@ -2,9 +2,9 @@ from datetime import datetime
 
 from sqlalchemy import select
 
-from crud.common import CRUD
-from db.models import Task
-from schemas.tasks import TaskCreate, TaskUpdate
+from app.crud.common import CRUD
+from app.db.models import Task
+from app.schemas.tasks import TaskCreate, TaskUpdate
 
 
 class TasksCRUD(CRUD):

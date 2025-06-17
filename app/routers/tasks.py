@@ -1,8 +1,8 @@
 from fastapi import APIRouter, HTTPException, status, Depends, Response
 
-from crud.tasks import TasksCRUD
-from schemas.tasks import TaskCreate, TaskUpdate, TaskOut
-from services.tasks import mark_completed
+from app.crud.tasks import TasksCRUD
+from app.schemas.tasks import TaskCreate, TaskUpdate, TaskOut
+from app.services.tasks import mark_completed
 
 router = APIRouter(
     prefix='/tasks',

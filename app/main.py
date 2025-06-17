@@ -1,7 +1,7 @@
 import uvicorn
 from fastapi import FastAPI
 
-from routers.tasks import router as task_router
+from app.routers.tasks import router as task_router
 
 app = FastAPI()
 

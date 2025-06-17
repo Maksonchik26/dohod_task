@@ -1,5 +1,5 @@
-from crud.tasks import TasksCRUD
-from db.models import Task
+from app.crud.tasks import TasksCRUD
+from app.db.models import Task
 
 async def mark_completed(task_id: int, crud: TasksCRUD) -> Task:
     task = await crud.read_one(task_id)
