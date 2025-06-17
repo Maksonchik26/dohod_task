@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from pydantic import BaseModel, ConfigDict
 
 
@@ -12,6 +14,7 @@ class TaskUpdate(TaskCreate):
 class TaskOut(TaskCreate):
     id: int
     completed: bool
+    created_at: datetime
 
     class Config:
         orm_mode = True

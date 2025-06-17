@@ -1,8 +1,8 @@
-from fastapi import APIRouter, HTTPException, status, Depends
+from fastapi import APIRouter, HTTPException, status, Depends, Response
 
 from crud.tasks import TasksCRUD
-from db.models import Task
 from schemas.tasks import TaskCreate, TaskUpdate, TaskOut
+from services.tasks import mark_completed
 
 router = APIRouter(
     prefix='/tasks',
@@ -12,9 +12,11 @@ router = APIRouter(
 
 @router.get("/", response_model=list[TaskOut], status_code=status.HTTP_200_OK)
 async def get_tasks(
+        limit: int | None = None,
+        offset: int | None = None,
         tasks_crud: TasksCRUD = Depends(),
 ):
-    tasks = await tasks_crud.read_all()
+    tasks = await tasks_crud.read_all(limit, offset)
     return tasks
 
 @router.get("/{task_id}", response_model=TaskOut, status_code=status.HTTP_200_OK)
@@ -44,12 +46,13 @@ async def mark_task_completed(
         task_id: int,
         tasks_crud: TasksCRUD = Depends(),
 ):
-    if await tasks_crud.read_one(task_id):
-        task = await tasks_crud.mark_as_completed(task_id)
+    task = await tasks_crud.read_one(task_id)
+    if not task:
+        raise HTTPException(status_code=404, detail="Task not found")
 
-        return task
+    task = await mark_completed(task_id, tasks_crud)
 
-    raise HTTPException(status_code=404, detail="Task not found")
+    return task
 
 @router.put("/{task_id}", response_model=TaskOut, status_code=status.HTTP_200_OK)
 async def update_task(
@@ -57,7 +60,7 @@ async def update_task(
         task_data: TaskUpdate,
         tasks_crud: TasksCRUD = Depends(),
 ):
-    if tasks_crud.read_one(task_id):
+    if await tasks_crud.read_one(task_id):
         task = await tasks_crud.update(task_id, task_data)
 
         return task
@@ -70,9 +73,9 @@ async def delete_task(
         task_id: int,
         tasks_crud: TasksCRUD = Depends(),
 ):
-    if tasks_crud.read_one(task_id):
+    if await tasks_crud.read_one(task_id):
         await tasks_crud.delete(task_id)
 
-        return {"status": "deleted"}
+        return Response(status_code=status.HTTP_204_NO_CONTENT)
 
     raise HTTPException(status_code=404, detail="Task not found")

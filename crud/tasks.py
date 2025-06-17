@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from sqlalchemy import select
 
 from crud.common import CRUD
@@ -6,8 +8,8 @@ from schemas.tasks import TaskCreate, TaskUpdate
 
 
 class TasksCRUD(CRUD):
-    async def read_all (self):
-        tasks = await self.session.execute(select(Task))
+    async def read_all (self, limit: int = 10, offset: int = 0):
+        tasks = await self.session.execute(select(Task).limit(limit).offset(offset))
         result = tasks.scalars().all()
 
         return result
@@ -20,6 +22,7 @@ class TasksCRUD(CRUD):
 
     async def create(self, task_data: TaskCreate):
         task = Task(**task_data.model_dump())
+        task.created_at = datetime.now()
         self.session.add(task)
         await self.session.commit()
         await self.session.refresh(task)
@@ -30,15 +33,6 @@ class TasksCRUD(CRUD):
         task = await self.read_one(task_id)
         task.update_entity(**task_data.model_dump())
         await self.session.commit()
-
-        return task
-
-    async def mark_as_completed(self, task_id: int):
-        task = await self.read_one(task_id)
-        task.completed = True
-
-        await self.session.commit()
-        await self.session.refresh(task)
 
         return task
 
