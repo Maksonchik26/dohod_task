@@ -14,7 +14,7 @@ async def process_task(task_id: int) -> Task:
         stmt = await session.execute(select(Task).filter(Task.id == task_id))
         task = stmt.scalars().first()
         try:
-            await asyncio.sleep(5)
+            await asyncio.sleep(5)   # Условно длится несколько минут
             task.status = TaskStatusEnum.SUCCESS.value
         except Exception as e:
             task.status = TaskStatusEnum.FAILED.value
