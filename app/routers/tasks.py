@@ -1,12 +1,15 @@
-from fastapi import APIRouter, HTTPException, status, Depends, Response
+from datetime import datetime
 
+from fastapi import APIRouter, HTTPException, status, Depends, Response, BackgroundTasks
+
+from app.common.enums import TaskStatusEnum
 from app.crud.tasks import TasksCRUD
 from app.schemas.tasks import TaskCreate, TaskUpdate, TaskOut
-from app.services.tasks import mark_completed
+from app.services.tasks import process_task as bg_process_task
 
 router = APIRouter(
     prefix='/tasks',
-    tags=['platform']
+    tags=['tasks']
 )
 
 
@@ -41,18 +44,6 @@ async def create_task(
 
     return task
 
-@router.patch("/{task_id}", response_model=TaskOut, status_code=status.HTTP_200_OK)
-async def mark_task_completed(
-        task_id: int,
-        tasks_crud: TasksCRUD = Depends(),
-):
-    task = await tasks_crud.read_one(task_id)
-    if not task:
-        raise HTTPException(status_code=404, detail="Task not found")
-
-    task = await mark_completed(task_id, tasks_crud)
-
-    return task
 
 @router.put("/{task_id}", response_model=TaskOut, status_code=status.HTTP_200_OK)
 async def update_task(
@@ -79,3 +70,19 @@ async def delete_task(
         return Response(status_code=status.HTTP_204_NO_CONTENT)
 
     raise HTTPException(status_code=404, detail="Task not found")
+
+
+@router.post("/{task_id}/process", response_model=TaskOut, status_code=status.HTTP_201_CREATED)
+async def process_task(
+        background_tasks: BackgroundTasks,
+        task_id: int,
+        tasks_crud: TasksCRUD = Depends(),
+):
+    task = await tasks_crud.read_one(task_id)
+    task.updated_at = datetime.now()
+    task.status = TaskStatusEnum.IN_PROGRESS.value
+    await tasks_crud.session.commit()
+
+    background_tasks.add_task(bg_process_task, task_id)
+
+    return task

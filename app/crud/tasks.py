@@ -32,6 +32,7 @@ class TasksCRUD(CRUD):
     async def update(self, task_id: int, task_data: TaskUpdate):
         task = await self.read_one(task_id)
         task.update_entity(**task_data.model_dump())
+        task.updated_at = datetime.now()
         await self.session.commit()
 
         return task

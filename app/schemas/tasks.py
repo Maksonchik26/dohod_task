@@ -2,6 +2,8 @@ from datetime import datetime
 
 from pydantic import BaseModel, ConfigDict
 
+from app.common.enums import TaskStatusEnum
+
 
 class TaskCreate(BaseModel):
     title: str
@@ -13,7 +15,8 @@ class TaskUpdate(TaskCreate):
 
 class TaskOut(TaskCreate):
     id: int
-    completed: bool
+    status: TaskStatusEnum
     created_at: datetime
+    updated_at: datetime
 
     model_config = ConfigDict(from_attributes=True, extra='forbid')

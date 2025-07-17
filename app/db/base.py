@@ -4,7 +4,7 @@ from sqlalchemy.ext.asyncio import create_async_engine
 from sqlalchemy.ext.asyncio import async_sessionmaker
 
 
-DATABASE_URL = "postgresql+asyncpg://postgres:postgres@localhost/task_db"
+DATABASE_URL = "sqlite+aiosqlite:///tasks.db"
 
 
 engine = create_async_engine(DATABASE_URL, echo=True)
@@ -44,5 +44,3 @@ class UpdateMixin:
         for field, value in kwargs.items():
             if hasattr(self, field):
                 setattr(self, field, value)
-
-tasks = {}
